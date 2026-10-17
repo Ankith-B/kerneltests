@@ -104,7 +104,8 @@ def _bootstrap(h, ii, jj, N, B, seed, batch_size, memory_percentage=0.8):
 
 
 def _median(D):
-    return np.median(D[D > 0])
+    positive = D[D > 0]
+    return np.median(positive) if positive.size else 1.0
 
 
 def _check_common(agg_type, X, Y, R, alpha, batch_size, memory_percentage, seed):
@@ -196,6 +197,10 @@ def agginc(agg_type, X, Y, R=200, alpha=0.05, weights_type="uniform", number_ban
             pw = (lmax / 1) ** (1 / (number_bandwidths - 1))
             bandwidths = np.array([pw ** i * 1 / X.shape[1] for i in range(number_bandwidths)])
 
+    bandwidth_values = (np.asarray(bandwidths[0] + bandwidths[1], dtype=float)
+                        if agg_type == "hsic" else np.asarray(bandwidths, dtype=float))
+    if not np.all(np.isfinite(bandwidth_values)) or np.any(bandwidth_values <= 0):
+        raise ValueError("bandwidths must contain only positive finite values")
     h, ii, jj, N = _H[agg_type](X, Y, R, bandwidths)
     boot, stat = _bootstrap(h, ii, jj, N, B1 + B2, seed, batch_size, memory_percentage)
     nb = boot.shape[0]
@@ -249,6 +254,9 @@ def inc(agg_type, X, Y, R=200, alpha=0.05, batch_size="auto", memory_percentage=
         bws = (np.array([_median(pdist(X[:500], "euclidean"))]), np.array([_median(pdist(Y[:500], "euclidean"))]))
     else:
         bws = np.array([_median(pdist(X[:500], "euclidean"))])
+    bandwidth_values = np.concatenate(bws) if agg_type == "hsic" else np.asarray(bws)
+    if not np.all(np.isfinite(bandwidth_values)) or np.any(bandwidth_values <= 0):
+        raise ValueError("bandwidth must contain only positive finite values")
     h, ii, jj, N = _H[agg_type](X, Y, R, bws)
     boot, stat = _bootstrap(h, ii, jj, N, B, seed, batch_size, memory_percentage)
     stat = stat[0]

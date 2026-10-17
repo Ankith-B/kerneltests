@@ -1,0 +1,25 @@
+{'test': 'kt.mmdagg', 'n': 200, 'd': 10, 'median_s': 0.374}
+{'test': 'kt.mmdagginc', 'n': 200, 'd': 10, 'median_s': 0.427}
+{'test': 'hyppo.MMD', 'n': 200, 'd': 10, 'median_s': 0.084}
+{'test': 'hyppo.Energy', 'n': 200, 'd': 10, 'median_s': 0.042}
+{'test': 'kt.hsicagginc', 'n': 200, 'd': 10, 'median_s': 0.149}
+{'test': 'hyppo.Hsic', 'n': 200, 'd': 10, 'median_s': 0.009}
+{'test': 'hyppo.Dcorr', 'n': 200, 'd': 10, 'median_s': 0.007}
+{'test': 'kt.mmdagg', 'n': 1000, 'd': 10, 'median_s': 4.789}
+{'test': 'kt.mmdagginc', 'n': 1000, 'd': 10, 'median_s': 28.352}
+{'test': 'hyppo.MMD', 'n': 1000, 'd': 10, 'median_s': 1.064}
+{'test': 'hyppo.Energy', 'n': 1000, 'd': 10, 'median_s': 0.701}
+{'test': 'kt.hsicagginc', 'n': 1000, 'd': 10, 'median_s': 9.976}
+{'test': 'hyppo.Hsic', 'n': 1000, 'd': 10, 'median_s': 0.209}
+{'test': 'hyppo.Dcorr', 'n': 1000, 'd': 10, 'median_s': 0.118}
+{'test': 'kt.mmdagg', 'n': 2000, 'd': 10, 'median_s': 15.941}
+{'test': 'kt.mmdagginc', 'n': 2000, 'd': 10, 'median_s': 4.582}
+{'test': 'hyppo.MMD', 'n': 2000, 'd': 10, 'median_s': 4.408}
+{'test': 'hyppo.Energy', 'n': 2000, 'd': 10, 'median_s': 3.221}
+{'test': 'kt.hsicagginc', 'n': 2000, 'd': 10, 'median_s': 30.835}
+{'test': 'hyppo.Hsic', 'n': 2000, 'd': 10, 'median_s': 0.577}
+{'test': 'hyppo.Dcorr', 'n': 2000, 'd': 10, 'median_s': 0.395}
+{'setting': 'H0_two', 'test': 'kt.mmdagg', 'n': 200, 'R': 200, 'rate': 0.03, 'mc_se': np.float64(0.012)}
+{'setting': 'H0_two', 'test': 'kt.mmdagginc', 'n': 200, 'R': 200, 'rate': 0.03, 'mc_se': np.float64(0.012)}
+{'setting': 'H0_two', 'test': 'hyppo.MMD', 'n': 200, 'R': 200, 'rate': 0.015, 'mc_se': np.float64(0.009)}
+{'setting': 'H0_two', 'test': 'hyppo.Energy', 'n': 200, 'R': 200, 'rate': 0.015, 'mc_se': np.float64(0.009)}

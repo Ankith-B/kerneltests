@@ -1,100 +1,135 @@
-% DRAFT for JMLR MLOSS. Final submission must use the jmlr2e class; items marked TODO are not yet supported by evidence.
+% DRAFT for JMLR MLOSS. Final submission must use the jmlr2e class (\documentclass[twoside,11pt]{article}\usepackage{jmlr2e});
+% red TODOs need the public release, user evidence, or the B=500 power rerun.
 \documentclass[11pt]{article}
 \usepackage{amsmath,amssymb,booktabs,geometry,xcolor}
 \usepackage[round]{natbib}
 \usepackage{hyperref}
 \geometry{margin=1in}
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
-\title{kerneltests: Verified and Fast Aggregated Kernel Hypothesis Tests in Python}
+\title{kerneltests: Verified Aggregated Kernel Hypothesis Tests in Python}
 \author{Ankith Burki}
 \date{}
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Aggregated kernel tests---MMDAgg for two-sample testing, KSDAgg for goodness of fit, and their incomplete
-U-statistic variants---are among the most powerful nonparametric tests available, adapting to unknown smoothness
-without data splitting. Their implementations are spread over separate single-paper repositories with
-different interfaces and no test suites. \texttt{kerneltests} unifies them behind one API, verifies every port
-against the original reference code to bit-exact agreement, fixes two confirmed defects in the references,
-and provides a faster algebraic evaluation of the wild bootstrap (1.7--2.3$\times$ on CPU). The library is
-MIT-licensed, has \todo{N}\% line coverage across \todo{OS/Python matrix} in continuous integration, and is
+Aggregated kernel tests---MMDAgg, MMD-FUSE, KSDAgg and their linear-time incomplete U-statistic variants---adapt
+to unknown smoothness without data splitting and are among the most powerful nonparametric tests available for
+two-sample, independence and goodness-of-fit problems. Their implementations are spread across separate
+single-paper repositories with different interfaces and no automated tests. \texttt{kerneltests} unifies six
+such tests behind one API, verifies every port against the original reference code (identical decisions, and statistics within
+relative error $10^{-10}$, in all 302 configurations compared), fixes five defects found in the references, and provides an
+algebraically cheaper wild bootstrap and an optional JAX backend that together run MMDAgg 2.8--4.3$\times$
+faster than the reference on CPU. The library is MIT-licensed, has 141 tests at 98.9\% line coverage, and is
 documented at \todo{URL}.
 \end{abstract}
 
 \section{Introduction}
-Kernel hypothesis tests compare distributions through reproducing kernel Hilbert space embeddings: the maximum
-mean discrepancy (MMD) for two-sample testing, the Hilbert--Schmidt independence criterion (HSIC) for
+Kernel hypothesis tests compare distributions through embeddings in a reproducing kernel Hilbert space: the
+maximum mean discrepancy (MMD) for two-sample testing, the Hilbert--Schmidt independence criterion (HSIC) for
 independence, and the kernel Stein discrepancy (KSD) for goodness of fit. Their power depends strongly on the
-kernel bandwidth. Aggregated tests \citep{mmdagg,ksdagg} combine a collection of bandwidths and kernels with a
-level correction, achieving minimax-optimal power over Sobolev balls without data splitting, and incomplete
-U-statistics \citep{agginc} reduce their cost from quadratic to linear in the sample size.
+kernel and bandwidth. Aggregated tests \citep{mmdagg,ksdagg} combine many kernels and bandwidths with a level
+correction and adapt to the unknown smoothness of the alternative without splitting the data; MMD-FUSE
+\citep{mmdfuse} fuses them through a soft maximum; incomplete U-statistics \citep{agginc} reduce the cost from
+quadratic to linear in the sample size.
 
-These methods are used in \todo{applications with citations: distribution-shift detection, generative-model
-evaluation, simulation-based inference checks}. Their reference implementations are research code: one
-repository per paper, no automated tests, asserts in place of input validation, and inconsistent interfaces.
-\texttt{kerneltests} provides a single maintained library aimed at practitioners and at researchers who need
-trustworthy baselines.
+\todo{one or two sentences on applications, with citations, e.g.\ distribution-shift detection and evaluation of
+generative models.} The reference implementations are research code: one repository per paper, no automated
+tests, input checks by \texttt{assert}, and different interfaces. \texttt{kerneltests} is a single maintained
+library for practitioners, and a trustworthy baseline for researchers.
 
 \section{Design}
-The public API has one function per testing problem, each returning a \texttt{TestResult} with the decision,
-the level, and per-kernel diagnostics (statistics, quantiles, $p$-values, thresholds):
+The public API has one function per testing problem. Each returns a \texttt{TestResult} carrying the decision,
+the level and per-kernel diagnostics (statistics, quantiles, $p$-values and thresholds):
 \begin{verbatim}
 import kt
-res = kt.two_sample(X, Y)               # MMDAgg
-res = kt.goodness_of_fit(X, score_X)    # KSDAgg
-res = kt.independence(X, Y)             # HSICAggInc   (TODO: lands with agginc port)
+kt.two_sample(X, Y)                 # MMDAgg; also method="mmdfuse", "mmdagginc"
+kt.independence(X, Y)               # HSICAggInc
+kt.goodness_of_fit(X, score_X)      # KSDAgg; also method="ksdagginc"
 \end{verbatim}
-Low-level functions expose every option of the original methods (19 kernel configurations, four weighting
-schemes, wild bootstrap or permutations, parametric bootstrap for KSD). Weights, bandwidth selection and
-kernels are shared across tests. The only dependencies are NumPy and SciPy.
+Low-level functions expose every option of the original methods (for MMDAgg: 19 kernel configurations, four
+weighting schemes, wild bootstrap or permutations). Bandwidth selection, weights and kernels are shared across
+tests. The core depends only on NumPy and SciPy; JAX is an optional backend.
 
 \section{Verification}
-Correctness of a statistical test has two parts: agreement with the published method, and control of the
-type-I error. For the first, each port reproduces the reference random-number protocol, so for a given seed
-the decision, statistics, quantiles and thresholds can be compared exactly. MMDAgg agrees in all 152
-configurations tested (every kernel option $\times$ weighting $\times$ odd/even bandwidth counts, both resampling
-schemes) and KSDAgg in all 30 configurations tested. For the second, rejection rates under the null are
-checked by simulation in the test suite \todo{report a proper level study: several dimensions, sample sizes,
-$\geq 1000$ repetitions}.
+\paragraph{Agreement with the published methods.}
+Each NumPy port reproduces its reference's random-number protocol, so for a fixed seed the decision,
+statistics, quantiles and thresholds can be compared directly. In every configuration compared, decisions and $p$-values are identical and statistics agree to relative error $10^{-10}$; configurations
+compared: MMDAgg in 152 (every kernel option, weighting, odd and even bandwidth counts, both resampling
+schemes), KSDAgg in 30, and the incomplete U-statistic tests in 80. MMD-FUSE's reference uses JAX's random
+number generator, so its permutations were drawn by the reference and passed to the port; the 40 configurations
+agree to a relative error of $1.5\times10^{-11}$. The JAX backend agrees with the NumPy path in all 152 MMDAgg
+configurations.
 
-Exact comparison exposed two defects in the reference implementations, both reported upstream \todo{issue
-links}: (i) with the default \texttt{laplace\_gaussian} kernel, MMDAgg reports the Laplace-kernel $p$-values in
-place of the Gaussian ones (an indexing error; decisions unaffected); (ii) KSDAgg compares two equivalent
-rejection rules with an exact-equality assertion, so floating-point rounding makes it raise an error on some
-ordinary inputs. \texttt{kerneltests} uses a single rejection rule and includes regression tests for both.
+\paragraph{Level.} Over 30 settings (five tests; $d\in\{1,5,10\}$; $n\in\{100,500\}$; 1000 repetitions each,
+$\alpha=0.05$), no 95\% Clopper--Pearson interval for the rejection rate under the null lies above $\alpha$
+(range 0.002--0.060). \todo{at $n=500$ these runs used $B_1=B_2=100$, which makes MMD and HSIC conservative;
+replace with the $B=500$ rerun.}
+
+\paragraph{Defects found.} Exact comparison exposed five defects in the reference implementations, all fixed
+here with regression tests and reported upstream \todo{issue links}: (i) MMDAgg reports the Laplace-kernel
+$p$-values in place of the Gaussian ones under its default kernel (decisions unaffected); (ii) KSDAgg compares
+two equivalent rejection rules with an exact-equality assertion, so rounding makes it raise an error on some
+ordinary inputs; (iii) AggInc uses the \texttt{warnings} module without importing it; (iv) AggInc's HSIC input
+check validates the first bandwidth list twice; (v) AggInc's automatic batch size allocates all bootstrap
+samples at once (about 9\,GB at $n=2000$, killing the process).
 
 \section{Performance}
 For equal sample sizes the wild-bootstrap statistic is $r^\top K r$ with $r=(\epsilon,-\epsilon)$ and
 $K\in\mathbb{R}^{2n\times 2n}$; this equals $\epsilon^\top H\epsilon$ with
-$H=K_{XX}+K_{YY}-K_{XY}-K_{YX}\in\mathbb{R}^{n\times n}$, a fourfold reduction in matrix-product cost.
+$H=K_{XX}+K_{YY}-K_{XY}-K_{YX}\in\mathbb{R}^{n\times n}$, a fourfold reduction in matrix-product cost. The
+optional JAX backend additionally compiles kernel construction and batches all bandwidths.
 
 \begin{center}
-\begin{tabular}{rccc}
+\begin{tabular}{rcccc}
 \toprule
-$n$ & reference (s) & kerneltests (s) & speedup\\
+$n$ & reference (s) & kt NumPy (s) & kt JAX (s) & JAX vs reference\\
 \midrule
-500 & 1.61 & 0.95 & 1.7$\times$\\
-1000 & 3.15 & 1.38 & 2.3$\times$\\
-2000 & 14.48 & 8.28 & 1.7$\times$\\
+500 & 3.52 & 2.28 & 0.82 & 4.3$\times$\\
+1000 & 10.28 & 5.90 & 3.71 & 2.8$\times$\\
+2000 & 40.38 & 16.51 & 9.78 & 4.1$\times$\\
+4000 & 100.0 & 33.08 & 30.63 & 3.3$\times$\\
 \bottomrule
 \end{tabular}
 \end{center}
-Single run, $d=10$, $B_1=B_2=500$, one CPU machine \todo{repeat with medians over runs, report hardware,
-add memory, add the incomplete U-statistic tests and a GPU backend}.
+MMDAgg, $d=10$, $B_1=B_2=500$, median of three runs after a warm-up, two-core Intel Xeon virtual machine.
+Decisions agreed at every $n$. GPU execution is supported by the JAX backend but was not benchmarked.
 
 \section{Comparison with existing software}
-\todo{feature/runtime table vs hyppo, the per-paper packages (mmdagg, ksdagg, agginc, mmdfuse),
-torch-two-sample, PyRKHSstats; verify each row}.
+\begin{center}\footnotesize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccc}
+\toprule
+ & kerneltests & hyppo 0.5.2 & PyRKHSstats & torch-two-sample & reference packages\\
+\midrule
+Problems (2S/Ind/GoF) & all three & all three & 2S, Ind & 2S & one each\\
+Aggregated bandwidths & yes & no & no & no & yes\\
+Linear-time variants & yes & no & no & no & AggInc only\\
+Automated tests / CI & yes / yes & yes / yes & partial / no & yes / legacy & no / no\\
+On PyPI & \todo{yes} & yes & yes & no & no\\
+License & MIT & MIT & GPL-3 & BSD-3 & MIT\\
+\bottomrule
+\end{tabular}
+\end{center}
+hyppo \citep{hyppo} is the closest maintained library. With its defaults it uses a $\chi^2$ approximation
+instead of resampling, which makes it 4--50$\times$ faster in our timings. Adaptivity is what the aggregated
+tests buy. On a perturbed-uniform alternative with fine-scale structure ($n=200$, 100 repetitions),
+\texttt{kerneltests} rejected in 100\% of runs against 20\% (hyppo MMD) and 29\% (energy distance). On a plain
+mean shift, hyppo was more powerful (0.73 against 0.58--0.61). \todo{replace with the $B=500$ power study and
+stronger independence alternatives.} The two libraries are complementary: hyppo for fast screening,
+\texttt{kerneltests} when power against unknown or fine-scale differences matters.
 
 \section{Community and availability}
-Source: \todo{GitHub URL}; documentation: \todo{URL}; PyPI: \todo{package}; issue tracker and contribution guide
-are public. \todo{user base evidence: downloads, dependents, external contributors, issues from users}.
+Source: \todo{GitHub URL}; documentation: \todo{URL}; PyPI: \todo{package}. Continuous integration covers
+Linux, macOS and Windows with Python 3.9--3.13. The repository includes contribution guidelines that require
+every new port to demonstrate parity with its reference. \todo{user base evidence: downloads, dependents,
+external contributors, user issues.}
 
 \section*{Acknowledgments}
-\todo{e.g.\ thanks to the authors of the reference implementations}
+\todo{e.g.\ thanks to the authors of the reference implementations.}
 
 \begin{thebibliography}{9}
+\bibitem[Biggs et al.(2023)]{mmdfuse} F.~Biggs, A.~Schrab, A.~Gretton. MMD-FUSE: learning and combining kernels for two-sample testing without data splitting. \emph{NeurIPS}, 2023.
+\bibitem[Panda et al.(2024)]{hyppo} S.~Panda, S.~Palaniappan, J.~Xiong, et al. hyppo: a multivariate hypothesis testing Python package. \todo{verify venue and year}.
 \bibitem[Schrab et al.(2023)]{mmdagg} A.~Schrab, I.~Kim, M.~Albert, B.~Laurent, B.~Guedj, A.~Gretton. MMD aggregated two-sample test. \emph{JMLR} 24(194):1--81, 2023.
 \bibitem[Schrab et al.(2022a)]{ksdagg} A.~Schrab, B.~Guedj, A.~Gretton. KSD aggregated goodness-of-fit test. \emph{NeurIPS}, 2022.
 \bibitem[Schrab et al.(2022b)]{agginc} A.~Schrab, I.~Kim, B.~Guedj, A.~Gretton. Efficient aggregated kernel tests using incomplete U-statistics. \emph{NeurIPS}, 2022.

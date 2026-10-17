@@ -112,8 +112,12 @@ def _check_common(agg_type, X, Y, R, alpha, batch_size, memory_percentage, seed)
     if agg_type not in _TYPES:
         raise ValueError('agg_type should be "mmd" or "hsic" or "ksd".')
     X = np.asarray(X, dtype=float); Y = np.asarray(Y, dtype=float)
+    if not np.all(np.isfinite(X)) or not np.all(np.isfinite(Y)):
+        raise ValueError("X and Y must contain only finite values")
     if X.ndim != 2 or Y.ndim != 2:
         raise ValueError("X and Y must be 2-D arrays")
+    if X.shape[1] == 0 or Y.shape[1] == 0:
+        raise ValueError("X and Y must contain at least one feature")
     if agg_type == "mmd" and X.shape[1] != Y.shape[1]:
         raise ValueError("mmd: X and Y must have the same number of columns")
     if agg_type == "hsic" and X.shape[0] != Y.shape[0]:

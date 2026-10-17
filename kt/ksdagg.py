@@ -48,8 +48,12 @@ def ksdagg(X, score_X, alpha=0.05, number_bandwidths=10, weights_type="uniform",
            seed=42, bandwidths=None, return_details=False):
     """Return 1 if KSDAgg rejects H0: X ~ model (whose score at X is score_X), else 0."""
     X = np.asarray(X, dtype=float); S = np.asarray(score_X, dtype=float)
+    if not np.all(np.isfinite(X)) or not np.all(np.isfinite(S)):
+        raise ValueError("X and score_X must contain only finite values")
     if X.ndim != 2 or X.shape != S.shape:
         raise ValueError("X and score_X must be 2-D arrays of the same shape")
+    if X.shape[1] == 0:
+        raise ValueError("X and score_X must contain at least one feature")
     m = X.shape[0]
     if m < 2:
         raise ValueError("need at least 2 samples")

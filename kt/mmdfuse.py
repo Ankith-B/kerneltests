@@ -74,8 +74,12 @@ def mmdfuse(X, Y, alpha=0.05, kernels=("laplace", "gaussian"), lambda_multiplier
         ``bandwidth`` and the normalised single-kernel ``mmd`` values.
     """
     X = np.asarray(X, dtype=float); Y = np.asarray(Y, dtype=float)
+    if not np.all(np.isfinite(X)) or not np.all(np.isfinite(Y)):
+        raise ValueError("X and Y must contain only finite values")
     if X.ndim != 2 or Y.ndim != 2 or X.shape[1] != Y.shape[1]:
         raise ValueError("X and Y must be 2-D arrays with the same number of columns")
+    if X.shape[1] == 0:
+        raise ValueError("X and Y must contain at least one feature")
     if Y.shape[0] > X.shape[0]:
         X, Y = Y, X
     m, n = X.shape[0], Y.shape[0]

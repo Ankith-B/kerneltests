@@ -193,7 +193,7 @@ def agginc(agg_type, X, Y, R=200, alpha=0.05, weights_type="uniform", number_ban
             bandwidths = np.array([pw ** i * lmin for i in range(number_bandwidths)])
         else:
             D = pdist(X[:500], "euclidean"); D = D[D > 0]
-            lmax = np.maximum(np.max(D), 2)
+            lmax = np.maximum(np.max(D) if D.size else 2, 2)
             pw = (lmax / 1) ** (1 / (number_bandwidths - 1))
             bandwidths = np.array([pw ** i * 1 / X.shape[1] for i in range(number_bandwidths)])
 

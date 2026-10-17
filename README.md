@@ -11,7 +11,7 @@
 ## Install
 
 ```bash
-pip install git+https://github.com/Ankith-B/kerneltests.git  # or, from a clone:
+pip install kerneltests          # on macOS: python3 -m pip install kerneltests
 pip install -e .
 ```
 

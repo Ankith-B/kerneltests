@@ -1,14 +1,17 @@
 # kerneltests
 
-`kerneltests` (import name `kt`) gives you modern kernel hypothesis tests behind one small API: two-sample testing (**MMDAgg**, **MMDAggInc**, **MMD-FUSE**), goodness-of-fit testing (**KSDAgg**, **KSDAggInc**) and independence testing (**HSICAggInc**). Every port is checked against the original reference implementations by Schrab et al. and gives **bit-exact** agreement for the same seed (MMD-FUSE, whose reference is JAX, agrees to rtol 1e-6 given the same permutations) (identical decisions, statistics, quantiles, p-values and thresholds) when run with `fast=False`. The default `fast=True` path for equal sample sizes is 1.7–2.3× faster than the reference MMDAgg and agrees with it up to floating-point rounding (identical decisions in all tested cases; statistics within ~1e-12 relative). The ports also fix five confirmed bugs in the references (all listed in CHANGELOG.md), including:
+`kerneltests` (import name `kt`) gives you modern kernel hypothesis tests behind one small API: two-sample testing (**MMDAgg**, **MMDAggInc**, **MMD-FUSE**), goodness-of-fit testing (**KSDAgg**, **KSDAggInc**) and independence testing (**HSICAggInc**). Every port is checked against the original reference implementations by Schrab et al. and gives **bit-exact** agreement for the same seed (MMD-FUSE, whose reference is JAX, agrees to rtol 1e-6 given the same permutations) (identical decisions, statistics, quantiles, p-values and thresholds) when run with `fast=False`. The default `fast=True` path for equal sample sizes is 1.7–2.3× faster than the reference MMDAgg and agrees with it up to floating-point rounding (identical decisions in all tested cases; statistics within ~1e-12 relative). The ports also fix five confirmed bugs in the references (all listed in CHANGELOG.md):
 
 1. **MMDAgg p-values.** With `kernel="laplace_gaussian"`, the reference reports Gaussian-kernel p-values that duplicate the Laplace ones, because `mmdagg/np.py` line 352 indexes `p_vals[i]` where it should use `p_vals[idx]`.
 2. **KSDAgg internal assertion.** The reference can raise an `AssertionError` when its two equivalent rejection rules (`p-value <= threshold` and `KSD > quantile`) disagree because of floating-point rounding.
+3. **AggInc missing import.** Non-default configuration can call `warnings.warn` without importing `warnings`, raising `NameError`.
+4. **AggInc HSIC bandwidth validation.** The reference checks the X bandwidth list twice instead of also checking the Y bandwidth list, so an empty Y list is not rejected.
+5. **AggInc automatic batch size.** The reference can size a batch using nearly all available RAM, causing excessive allocations or out-of-memory failures; the port caps automatic batch memory use.
 
 ## Install
 
 ```bash
-pip install git+<repository-url>      # or, from a clone:
+pip install git+https://github.com/Ankith-B/kerneltests.git  # or, from a clone:
 pip install -e .
 ```
 

@@ -1,0 +1,18 @@
+[project]
+name = "kerneltests"
+version = "0.0.1"
+description = "Unified, tested implementations of modern kernel hypothesis tests (MMDAgg, ...)"
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.22", "scipy>=1.8"]
+license = {text = "MIT"}
+authors = [{name = "Ankith Burki"}]
+readme = "README.md"
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov"]
+docs = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+[tool.setuptools]
+packages = ["kt"]

@@ -1,0 +1,13 @@
+[run]
+source = kt
+
+[report]
+include =
+    */kt/mmdagg.py
+    */kt/ksdagg.py
+    */kt/api.py
+    */kt/_common.py
+    */kt/__init__.py
+    */kt/agginc.py
+fail_under = 90
+show_missing = true

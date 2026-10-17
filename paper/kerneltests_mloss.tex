@@ -1,0 +1,102 @@
+% DRAFT for JMLR MLOSS. Final submission must use the jmlr2e class; items marked TODO are not yet supported by evidence.
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,booktabs,geometry,xcolor}
+\usepackage[round]{natbib}
+\usepackage{hyperref}
+\geometry{margin=1in}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\title{kerneltests: Verified and Fast Aggregated Kernel Hypothesis Tests in Python}
+\author{Ankith Burki}
+\date{}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Aggregated kernel tests---MMDAgg for two-sample testing, KSDAgg for goodness of fit, and their incomplete
+U-statistic variants---are among the most powerful nonparametric tests available, adapting to unknown smoothness
+without data splitting. Their implementations are spread over separate single-paper repositories with
+different interfaces and no test suites. \texttt{kerneltests} unifies them behind one API, verifies every port
+against the original reference code to bit-exact agreement, fixes two confirmed defects in the references,
+and provides a faster algebraic evaluation of the wild bootstrap (1.7--2.3$\times$ on CPU). The library is
+MIT-licensed, has \todo{N}\% line coverage across \todo{OS/Python matrix} in continuous integration, and is
+documented at \todo{URL}.
+\end{abstract}
+
+\section{Introduction}
+Kernel hypothesis tests compare distributions through reproducing kernel Hilbert space embeddings: the maximum
+mean discrepancy (MMD) for two-sample testing, the Hilbert--Schmidt independence criterion (HSIC) for
+independence, and the kernel Stein discrepancy (KSD) for goodness of fit. Their power depends strongly on the
+kernel bandwidth. Aggregated tests \citep{mmdagg,ksdagg} combine a collection of bandwidths and kernels with a
+level correction, achieving minimax-optimal power over Sobolev balls without data splitting, and incomplete
+U-statistics \citep{agginc} reduce their cost from quadratic to linear in the sample size.
+
+These methods are used in \todo{applications with citations: distribution-shift detection, generative-model
+evaluation, simulation-based inference checks}. Their reference implementations are research code: one
+repository per paper, no automated tests, asserts in place of input validation, and inconsistent interfaces.
+\texttt{kerneltests} provides a single maintained library aimed at practitioners and at researchers who need
+trustworthy baselines.
+
+\section{Design}
+The public API has one function per testing problem, each returning a \texttt{TestResult} with the decision,
+the level, and per-kernel diagnostics (statistics, quantiles, $p$-values, thresholds):
+\begin{verbatim}
+import kt
+res = kt.two_sample(X, Y)               # MMDAgg
+res = kt.goodness_of_fit(X, score_X)    # KSDAgg
+res = kt.independence(X, Y)             # HSICAggInc   (TODO: lands with agginc port)
+\end{verbatim}
+Low-level functions expose every option of the original methods (19 kernel configurations, four weighting
+schemes, wild bootstrap or permutations, parametric bootstrap for KSD). Weights, bandwidth selection and
+kernels are shared across tests. The only dependencies are NumPy and SciPy.
+
+\section{Verification}
+Correctness of a statistical test has two parts: agreement with the published method, and control of the
+type-I error. For the first, each port reproduces the reference random-number protocol, so for a given seed
+the decision, statistics, quantiles and thresholds can be compared exactly. MMDAgg agrees in all 152
+configurations tested (every kernel option $\times$ weighting $\times$ odd/even bandwidth counts, both resampling
+schemes) and KSDAgg in all 30 configurations tested. For the second, rejection rates under the null are
+checked by simulation in the test suite \todo{report a proper level study: several dimensions, sample sizes,
+$\geq 1000$ repetitions}.
+
+Exact comparison exposed two defects in the reference implementations, both reported upstream \todo{issue
+links}: (i) with the default \texttt{laplace\_gaussian} kernel, MMDAgg reports the Laplace-kernel $p$-values in
+place of the Gaussian ones (an indexing error; decisions unaffected); (ii) KSDAgg compares two equivalent
+rejection rules with an exact-equality assertion, so floating-point rounding makes it raise an error on some
+ordinary inputs. \texttt{kerneltests} uses a single rejection rule and includes regression tests for both.
+
+\section{Performance}
+For equal sample sizes the wild-bootstrap statistic is $r^\top K r$ with $r=(\epsilon,-\epsilon)$ and
+$K\in\mathbb{R}^{2n\times 2n}$; this equals $\epsilon^\top H\epsilon$ with
+$H=K_{XX}+K_{YY}-K_{XY}-K_{YX}\in\mathbb{R}^{n\times n}$, a fourfold reduction in matrix-product cost.
+
+\begin{center}
+\begin{tabular}{rccc}
+\toprule
+$n$ & reference (s) & kerneltests (s) & speedup\\
+\midrule
+500 & 1.61 & 0.95 & 1.7$\times$\\
+1000 & 3.15 & 1.38 & 2.3$\times$\\
+2000 & 14.48 & 8.28 & 1.7$\times$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Single run, $d=10$, $B_1=B_2=500$, one CPU machine \todo{repeat with medians over runs, report hardware,
+add memory, add the incomplete U-statistic tests and a GPU backend}.
+
+\section{Comparison with existing software}
+\todo{feature/runtime table vs hyppo, the per-paper packages (mmdagg, ksdagg, agginc, mmdfuse),
+torch-two-sample, PyRKHSstats; verify each row}.
+
+\section{Community and availability}
+Source: \todo{GitHub URL}; documentation: \todo{URL}; PyPI: \todo{package}; issue tracker and contribution guide
+are public. \todo{user base evidence: downloads, dependents, external contributors, issues from users}.
+
+\section*{Acknowledgments}
+\todo{e.g.\ thanks to the authors of the reference implementations}
+
+\begin{thebibliography}{9}
+\bibitem[Schrab et al.(2023)]{mmdagg} A.~Schrab, I.~Kim, M.~Albert, B.~Laurent, B.~Guedj, A.~Gretton. MMD aggregated two-sample test. \emph{JMLR} 24(194):1--81, 2023.
+\bibitem[Schrab et al.(2022a)]{ksdagg} A.~Schrab, B.~Guedj, A.~Gretton. KSD aggregated goodness-of-fit test. \emph{NeurIPS}, 2022.
+\bibitem[Schrab et al.(2022b)]{agginc} A.~Schrab, I.~Kim, B.~Guedj, A.~Gretton. Efficient aggregated kernel tests using incomplete U-statistics. \emph{NeurIPS}, 2022.
+\end{thebibliography}
+\end{document}

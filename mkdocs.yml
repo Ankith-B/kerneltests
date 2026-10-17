@@ -1,0 +1,29 @@
+site_name: kerneltests
+site_description: Unified, exhaustively tested modern kernel hypothesis tests
+site_author: Ankith Burki
+copyright: Copyright (c) 2026 Ankith Burki, MIT License
+theme:
+  name: material
+  features: [content.code.copy, navigation.sections]
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            show_source: false
+            show_root_heading: true
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - User guide: user-guide.md
+  - API reference: api.md
+  - Verification: verification.md
+  - Changelog: changelog.md

@@ -14,5 +14,5 @@ Next: [Quickstart](quickstart.md) · [User guide](user-guide.md) · [API referen
 
 ## Roadmap
 
-- GPU backend (JAX or PyTorch)
+- Validate and benchmark the JAX backend on GPU hardware
 - Fast path for the permutation (unequal sample size) MMDAgg calibration

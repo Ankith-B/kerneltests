@@ -78,3 +78,15 @@ def test_api_routing():
     res = kt.two_sample(X, Y, method="mmdfuse", number_permutations=300, seed=3)
     assert res.method == "mmdfuse" and res.alpha == 0.05
     assert res.reject == bool(mmdfuse(X, Y, number_permutations=300, seed=3)) and "statistic" in res.details
+
+
+def test_automatic_bandwidths_handle_duplicate_distances():
+    X = np.zeros((8, 1))
+    Y_constant = np.zeros((8, 1))
+    Y_repeated = np.vstack((np.zeros((7, 1)), [[1.0]]))
+    for Y in (Y_constant, Y_repeated):
+        _, details = mmdfuse(X, Y, number_permutations=50, return_details=True)
+        assert np.all(np.isfinite(details["bandwidth"]))
+        assert np.all(details["bandwidth"] > 0)
+        assert np.isfinite(details["statistic"])
+        assert np.isfinite(details["p_value"])

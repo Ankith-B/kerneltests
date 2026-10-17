@@ -42,11 +42,18 @@ def _kernel(pairwise: np.ndarray, kernel: str, bandwidth: float, rq_exponent: fl
 
 
 def _bandwidths(distances: np.ndarray, number: int) -> np.ndarray:
+    positive = distances[distances > 0]
+    if positive.size == 0:
+        return np.ones(number)
     median = np.median(distances)
     distances = distances + (distances == 0) * median
     dd = np.sort(distances)
     lam_min = dd[int(np.floor(len(dd) * 0.05))] / 2
     lam_max = dd[int(np.floor(len(dd) * 0.95))] * 2
+    if lam_min <= 0:
+        lam_min = np.min(positive) / 2
+    if lam_max <= 0:
+        lam_max = np.max(positive) * 2
     return np.linspace(lam_min, lam_max, number)
 
 

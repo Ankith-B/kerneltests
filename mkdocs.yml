@@ -24,6 +24,10 @@ nav:
   - Home: index.md
   - Quickstart: quickstart.md
   - User guide: user-guide.md
+  - Tutorials:
+      - Detecting dataset shift: tutorials/dataset-shift.md
+      - Checking a generative model: tutorials/generative-model.md
+      - Testing independence of features: tutorials/independence.md
   - API reference: api.md
   - Verification: verification.md
   - Changelog: changelog.md

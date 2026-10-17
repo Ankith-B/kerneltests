@@ -33,7 +33,8 @@ def two_sample(X, Y, method: str = "mmdagg", alpha: float = 0.05, **kwargs) -> T
     """Test H0: X and Y are drawn from the same distribution.
 
     method: "mmdagg" (Schrab et al., JMLR 2023; quadratic time) or
-            "mmdagginc" (Schrab et al., NeurIPS 2022; incomplete U-statistics, faster for large n).
+            "mmdagginc" (Schrab et al., NeurIPS 2022; incomplete U-statistics, faster for large n) or
+            "mmdfuse" (Biggs, Schrab, Gretton, NeurIPS 2023; fused soft-max over kernels, permutations).
     """
     if method == "mmdagg":
         from .mmdagg import mmdagg
@@ -41,7 +42,10 @@ def two_sample(X, Y, method: str = "mmdagg", alpha: float = 0.05, **kwargs) -> T
     if method == "mmdagginc":
         from .agginc import agginc
         return _run(lambda *a, **k: agginc("mmd", *a, **k), method, alpha, X, Y, **kwargs)
-    raise ValueError(f"unknown two-sample method {method!r}; available: 'mmdagg', 'mmdagginc'")
+    if method == "mmdfuse":
+        from .mmdfuse import mmdfuse
+        return _run(mmdfuse, method, alpha, X, Y, **kwargs)
+    raise ValueError(f"unknown two-sample method {method!r}; available: 'mmdagg', 'mmdagginc', 'mmdfuse'")
 
 
 def independence(X, Y, method: str = "hsicagginc", alpha: float = 0.05, **kwargs) -> TestResult:

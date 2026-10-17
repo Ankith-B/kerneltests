@@ -8,6 +8,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `kt.two_sample` (MMDAgg) and `kt.goodness_of_fit` (KSDAgg) entry points, which return `kt.TestResult`.
 - `kt.mmdagg.mmdagg`, supporting every reference kernel option, all four weightings, and wild-bootstrap and permutation calibration.
 - `kt.ksdagg.ksdagg`, supporting the IMQ Stein kernel with wild-bootstrap and parametric calibration and user-supplied bandwidths.
+- `kt.mmdfuse.mmdfuse` and `kt.two_sample(..., method="mmdfuse")`: MMD-FUSE (Biggs, Schrab, Gretton, NeurIPS 2023), NumPy port of the JAX reference with all 14 kernels; parity checked with shared permutations (`check_mmdfuse_vs_reference.py`).
 - Documentation, CI (Linux, macOS and Windows; Python 3.9 to 3.13) and coverage gates.
 
 ### Fixed (relative to the reference implementations)

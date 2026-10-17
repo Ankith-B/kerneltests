@@ -16,6 +16,8 @@
 
 ::: kt.ksdagg.ksdagg
 
+::: kt.mmdfuse.mmdfuse
+
 ::: kt.agginc.agginc
 
 ::: kt.agginc.inc

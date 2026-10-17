@@ -1,7 +1,7 @@
 [project]
 name = "kerneltests"
 version = "0.0.1"
-description = "Unified, tested implementations of modern kernel hypothesis tests (MMDAgg, ...)"
+description = "Modern kernel-based hypothesis tests for two-sample testing, goodness-of-fit, and independence"
 requires-python = ">=3.9"
 dependencies = ["numpy>=1.22", "scipy>=1.8"]
 license = {text = "MIT"}

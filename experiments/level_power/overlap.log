@@ -1,0 +1,27 @@
+/bin/bash -c source /root/.claude/shell-snapshots/snapshot-bash-1792111277515-yrzq0r.sh 2>/dev/null 
+python -m pytest -q --cov=kt --cov-config=.coveragerc
+/bin/bash -c source /root/.claude/shell-snapshots/snapshot-bash-1792111277515-yrzq0r.sh 2>/dev/null 
+python -m pytest -q --cov=kt --cov-config=.coveragerc
+/bin/bash -c source /root/.claude/shell-snapshots/snapshot-bash-1792111277515-yrzq0r.sh 2>/dev/null 
+python -m pytest -q --cov=kt --cov-config=.coveragerc
+/bin/bash -c source /root/.claude/shell-snapshots/snapshot-bash-1792111277515-yrzq0r.sh 2>/dev/null 
+timeout 590 python3 check_jax_backend.py
+python3 check_jax_backend.py
+/bin/bash -c source /root/.claude/shell-snapshots/snapshot-bash-1792111277515-yrzq0r.sh 2>/dev/null 
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.9-testnumpy__1_22_
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.9-test_/bin/python
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.9-test_/bin/python
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.10-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.10-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.11-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.11-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.12-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.12-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.13-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.9-test_/bin/python
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.9-test_/bin/python
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.9-test_/bin/python
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.10-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.10-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.10-test_/bin/pytho
+/tmp/claude-0/-home-claude/296fb3a8-449e-5a42-af69-9898d983211e/scratchpad/venv-3.11-test_/bin/pytho

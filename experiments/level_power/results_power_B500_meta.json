@@ -1,0 +1,15 @@
+{
+ "python": "3.13.16",
+ "numpy": "2.5.3",
+ "scipy": "1.18.1",
+ "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+ "cpus": 2,
+ "procs": 2,
+ "B1_B2_n500": 500,
+ "B1_B2_n100": 500,
+ "B3": 50,
+ "alpha": 0.05,
+ "wall_seconds": 3146.5332984924316,
+ "kt_version": "0.1.0.dev0",
+ "quick": false
+}

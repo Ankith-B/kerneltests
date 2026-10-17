@@ -66,6 +66,12 @@ $\alpha=0.05$), no 95\% Clopper--Pearson interval for the rejection rate under t
 (range 0.002--0.060). \todo{at $n=500$ these runs used $B_1=B_2=100$, which makes MMD and HSIC conservative;
 replace with the $B=500$ rerun.}
 
+\paragraph{Power.} At $n=500$ ($B_1=B_2=500$, 200 repetitions), power rises from the nominal level to near one
+as the effect grows for every test: for a mean shift of 0.3 in $d=5$, MMDAgg rejects in 89\% of runs and
+MMDAggInc in 83\%; for a 0.3 shift under the KSD model, both reach 100\%; HSICAggInc detects linear dependence
+of strength 0.3 in 96\% of runs. As expected, the incomplete U-statistic variants trade a little power for
+linear cost (for example KSD scale change 0.3: 0.88 against 0.76).
+
 \paragraph{Defects found.} Exact comparison exposed five defects in the reference implementations, all fixed
 here with regression tests and reported upstream \todo{issue links}: (i) MMDAgg reports the Laplace-kernel
 $p$-values in place of the Gaussian ones under its default kernel (decisions unaffected); (ii) KSDAgg compares

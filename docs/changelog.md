@@ -5,6 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- Optional JAX backend for MMDAgg: `mmdagg(..., backend="jax")` (install with `pip install kerneltests[jax]`). Jit-compiled, vmap-batched kernel matrices and resampled statistics in float64; same NumPy random draws, identical decisions to `backend="numpy"` on the 152-case sweep (`check_jax_backend.py`). GPU-capable but untested on GPU.
 - `kt.two_sample` (MMDAgg) and `kt.goodness_of_fit` (KSDAgg) entry points, which return `kt.TestResult`.
 - `kt.mmdagg.mmdagg`, supporting every reference kernel option, all four weightings, and wild-bootstrap and permutation calibration.
 - `kt.ksdagg.ksdagg`, supporting the IMQ Stein kernel with wild-bootstrap and parametric calibration and user-supplied bandwidths.

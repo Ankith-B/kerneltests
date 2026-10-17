@@ -21,6 +21,18 @@
 - **MMDAgg `kernel`**: `"gaussian"`, `"laplace"`, `"imq"`, `"matern_{0..4}.5_l1"`, `"matern_{0..4}.5_l2"`, or a collection: `"laplace_gaussian"` (the default) / `"gaussian_laplace"`, `"all_matern_l1"`, `"all_matern_l2"`, `"all_matern_l1_l2"`, `"all"`. Bandwidths are chosen from inter-sample distances (using the first 500 points of each sample). L1 kernels use cityblock distances and L2 kernels use Euclidean distances.
 - **KSDAgg**: `kernel="imq"` is the only kernel. You can pass explicit positive `bandwidths` to override the automatic grid.
 
+## Backends
+
+`kt.mmdagg.mmdagg` (and `kt.two_sample(..., method="mmdagg")`) accepts `backend="numpy"` (the default) or `backend="jax"`.
+
+The JAX backend is optional: install it with `pip install kerneltests[jax]` (CPU) or follow the JAX installation guide for a CUDA build. Without JAX installed, `backend="jax"` raises an `ImportError` that explains how to install it; the NumPy backend never imports JAX. The JAX backend:
+
+- builds the pairwise distances, all kernel matrices (every bandwidth of a kernel batched with `jax.vmap`) and the resampled statistics in jit-compiled code, in float64 (it enables `jax_enable_x64`);
+- runs on JAX's default device, so a CUDA-enabled `jaxlib` puts it on the GPU (untested so far);
+- uses the **same** random draws as the NumPy backend: the Rademacher/permutation matrices come from the NumPy `RandomState(seed)` protocol and are passed to JAX. Decisions match `backend="numpy"` and statistics/quantiles agree to `rtol=1e-9` on the 152-case parity sweep (`check_jax_backend.py`);
+- ignores `fast` (it always uses the n x n wild-bootstrap form for equal sample sizes);
+- compiles once per input shape/kernel, so the first call is slower. It pays off for large `n`; see `experiments/jax_backend/results.md`.
+
 ## Interpreting `details`
 
 `TestResult.details` is a dictionary of arrays with one entry for each (kernel, bandwidth) pair:

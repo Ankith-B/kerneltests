@@ -14,6 +14,14 @@ pip install -e .
 
 You need Python 3.9 or newer, NumPy 1.22 or newer, and SciPy 1.8 or newer.
 
+Optional JAX backend for MMDAgg (`mmdagg(X, Y, backend="jax")`, also accepted by `kt.two_sample`):
+
+```bash
+pip install -e .[jax]
+```
+
+It uses the same random draws as the NumPy path and gives identical decisions; see the *Backends* section of the user guide and `experiments/jax_backend/results.md` for timings.
+
 ## Quickstart
 
 Two-sample test (are `X` and `Y` drawn from the same distribution?):
@@ -74,7 +82,7 @@ The unit tests check power against clear alternatives, Type I error control unde
 
 ## Roadmap
 
-- GPU backend (JAX or PyTorch)
+- GPU benchmarks for the JAX backend (implemented, untested on GPU)
 - Fast path for the permutation (unequal sample size) MMDAgg calibration
 
 ## Contributing

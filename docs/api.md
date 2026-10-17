@@ -18,6 +18,14 @@
 
 ::: kt.mmdfuse.mmdfuse
 
+## Backends
+
+::: kt.backends.require_jax
+
+::: kt.backends.jax_mmdagg.statistics
+
+## Other low-level
+
 ::: kt.agginc.agginc
 
 ::: kt.agginc.inc

@@ -10,9 +10,10 @@ readme = "README.md"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov"]
+jax = ["jax>=0.4"]
 docs = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 [tool.setuptools]
-packages = ["kt"]
+packages = ["kt", "kt.backends"]

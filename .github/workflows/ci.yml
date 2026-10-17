@@ -18,6 +18,16 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install -e ".[test]"
       - run: python -m pytest --cov=kt --cov-config=.coveragerc --cov-report=term-missing --cov-fail-under=90
+  test-jax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[test,jax]"
+      - run: python -m pytest --cov=kt --cov-config=.coveragerc --cov-report=term-missing --cov-fail-under=90
   docs:
     runs-on: ubuntu-latest
     steps:

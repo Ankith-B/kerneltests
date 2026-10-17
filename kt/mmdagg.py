@@ -49,14 +49,23 @@ def _kernel(pairwise: np.ndarray, kernel: str, bandwidth: float) -> np.ndarray:
 
 def mmdagg(X, Y, alpha=0.05, kernel="laplace_gaussian", number_bandwidths=10,
            weights_type="uniform", B1=2000, B2=2000, B3=50, seed=42, permutations_same_sample_size=False,
-           return_details=False, fast=True):
+           return_details=False, fast=True, backend="numpy"):
     """Return 1 if MMDAgg rejects H0: P_X = P_Y at level alpha, else 0.
 
     fast: for equal sample sizes (wild bootstrap), evaluate r^T H r with the n x n matrix
         H = Kxx + Kyy - Kxy - Kyx instead of the reference's 2n x 2n product (about 4x fewer
         flops; mathematically identical, equal to the reference up to floating-point rounding).
         Set fast=False to reproduce the reference bit-for-bit.
+    backend: "numpy" (default) or "jax". The JAX backend (optional dependency,
+        ``pip install kerneltests[jax]``) builds all kernel matrices and resampled statistics in
+        jit-compiled float64 code on the default JAX device (CPU or GPU). Random draws are the
+        same NumPy ones, so results match backend="numpy" up to floating-point rounding.
+        ``fast`` is ignored by the JAX backend (it always uses the n x n wild-bootstrap form).
     """
+    if backend not in ("numpy", "jax"):
+        raise ValueError("backend must be 'numpy' or 'jax'")
+    if backend == "jax":
+        from .backends.jax_mmdagg import statistics as _jax_statistics
     X = np.asarray(X, dtype=float); Y = np.asarray(Y, dtype=float)
     if X.ndim != 2 or Y.ndim != 2 or X.shape[1] != Y.shape[1]:
         raise ValueError("X and Y must be 2-D arrays with the same number of columns")
@@ -110,11 +119,18 @@ def mmdagg(X, Y, alpha=0.05, kernel="laplace_gaussian", number_bandwidths=10,
         V10 = perm(np.r_[np.ones(m), np.zeros(n)])
         V01 = perm(np.r_[np.zeros(m), -np.ones(n)])
 
-    Z = np.vstack((X, Y))
     N = number_bandwidths * len(kbl)
-    M = np.empty((N, Btot)); bws = np.empty(N); names = []
+    if backend == "jax":
+        M = _jax_statistics(X, Y, kbl, wild, (Rn,) if wild else (V10, V01, V11))
+        bws = np.concatenate([b for _, b, _ in kbl])
+        names = [k for k, b, _ in kbl for _ in b]
+        kbl_loop = []
+    else:
+        M = np.empty((N, Btot)); bws = np.empty(N); names = []
+        kbl_loop = kbl
+    Z = np.vstack((X, Y))
     last = None
-    for j, (kern, bandwidths, metric) in enumerate(kbl):
+    for j, (kern, bandwidths, metric) in enumerate(kbl_loop):
         if metric != last:
             P = cdist(Z, Z, metric); last = metric
         for i, bw in enumerate(bandwidths):

@@ -82,8 +82,9 @@ def ksdagg(X, score_X, alpha=0.05, number_bandwidths=10, weights_type="uniform",
 
     if bandwidths is not None:
         bandwidths = np.asarray(bandwidths, dtype=float)
-        if bandwidths.ndim != 1 or len(bandwidths) < 1 or np.any(bandwidths <= 0):
-            raise ValueError("bandwidths must be a non-empty 1-D array of positive values")
+        if (bandwidths.ndim != 1 or len(bandwidths) < 1
+                or not np.all(np.isfinite(bandwidths)) or np.any(bandwidths <= 0)):
+            raise ValueError("bandwidths must be a non-empty 1-D array of positive finite values")
         number_bandwidths = len(bandwidths)
     if not (isinstance(number_bandwidths, int) and number_bandwidths > 1) and bandwidths is None:
         raise ValueError("number_bandwidths must be an int > 1")

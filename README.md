@@ -10,8 +10,15 @@
 
 ## Install
 
+Install the latest release from PyPI:
+
 ```bash
-pip install kerneltests          # on macOS: python3 -m pip install kerneltests
+pip install kerneltests
+```
+
+Or, from a repository checkout, install the local source in editable mode:
+
+```bash
 pip install -e .
 ```
 
@@ -20,7 +27,9 @@ You need Python 3.9 or newer, NumPy 1.22 or newer, and SciPy 1.8 or newer.
 Optional JAX backend for MMDAgg (`mmdagg(X, Y, backend="jax")`, also accepted by `kt.two_sample`):
 
 ```bash
-pip install -e .[jax]
+pip install "kerneltests[jax]"  # PyPI release
+# Or, from a repository checkout:
+pip install -e ".[jax]"
 ```
 
 It uses the same random draws as the NumPy path and gives identical decisions; see the *Backends* section of the user guide and `experiments/jax_backend/results.md` for timings.
